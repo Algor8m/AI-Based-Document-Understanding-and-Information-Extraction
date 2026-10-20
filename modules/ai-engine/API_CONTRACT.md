@@ -41,8 +41,11 @@ HTTP status: `200 OK`
   "extracted_facts": {
     "emails": ["billing@example.com"],
     "phone_numbers": [],
-    "dates": [],
-    "text_length": 70
+    "dates": ["2026-10-20"],
+    "text_length": 116,
+    "invoice_number": "INV-2026-001",
+    "invoice_date": "2026-10-20",
+    "amount_due": "12500.00"
   },
   "inferred_facts": {
     "document_type": "invoice",
@@ -74,7 +77,7 @@ HTTP status: `200 OK`
 }
 ```
 
-The values in this example illustrate the response structure. Actual extracted values and text length depend on the submitted text.
+The values above illustrate the response structure. Actual extracted values and text length depend on the submitted text.
 
 ### Classification fields
 
@@ -82,6 +85,13 @@ The values in this example illustrate the response structure. Actual extracted v
 - `classification.classification_method`: currently `keyword_rules`.
 - `classification.confidence`: heuristic label, either `low` or `medium`; it is not a calibrated probability.
 
+### Invoice extraction fields
+
+- `extracted_facts.invoice_number`: invoice identifier detected from a recognized invoice-number label, or `null` if not detected.
+- `extracted_facts.invoice_date`: date detected after an `Invoice Date` label, or `null` if not detected.
+- `extracted_facts.amount_due`: amount detected after an amount-due or balance-due label, returned as a string without currency symbols or thousands separators, or `null` if not detected.
+
+Invoice extraction currently uses label-based pattern matching. It may not detect fields in every invoice format.
 
 ## 5. Error Responses
 
