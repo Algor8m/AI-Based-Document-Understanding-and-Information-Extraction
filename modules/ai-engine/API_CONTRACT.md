@@ -27,7 +27,7 @@ Local development URL: `http://127.0.0.1:8000/api/v1/analyze`
 | `document_id` | String | Yes | Identifier assigned to the document |
 | `text` | String | Yes | Text extracted from the document, typically by OCR |
 
-Both fields must be non-empty. The text must be supplied as a JSON string.
+Both fields must be non-empty strings. Whitespace-only document text is rejected. The text must be supplied as a JSON string.
 
 
 ## 4. Successful Response
@@ -121,6 +121,9 @@ The image-processing module is responsible for document image input, preprocessi
 - The API response is the integration boundary between the two modules.
 - The local URL is for development; deployments must use the configured host and port.
 - Any future changes to request or response fields must be coordinated between module owners.
+- The image-processing module must send OCR-extracted text in the `text` field.
+- The image-processing module must call this REST endpoint over HTTP rather than importing the AI engine's internal Python modules.
+- The caller must handle unsuccessful HTTP responses and must not assume every document will be classified with high confidence.
 
 ## 8. Current Limitations
 
