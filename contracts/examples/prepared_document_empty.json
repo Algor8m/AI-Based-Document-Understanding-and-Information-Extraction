@@ -1,0 +1,8 @@
+{
+  "schema_version": "1.0",
+  "document_id": "doc-example-002",
+  "source": {"type": "image", "filename": "blank.png"},
+  "text": "",
+  "metadata": {"page_count": 1, "image_width": 640, "image_height": 480, "image_format": "PNG", "ocr_engine": "tesseract", "preprocessing_operations": ["exif_orientation", "grayscale", "autocontrast", "median_denoise", "contrast_adjustment"], "processing_duration_ms": 20.1},
+  "warnings": [{"code": "NO_TEXT_DETECTED", "message": "No readable text was detected in the image."}]
+}

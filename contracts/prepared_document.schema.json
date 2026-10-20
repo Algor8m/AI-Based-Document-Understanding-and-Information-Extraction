@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ivp-ai.local/contracts/prepared_document.schema.json",
+  "title": "IVP+AI Prepared Document",
+  "description": "Provisional version 1.0 image preparation output; contains no reasoning facts or conclusions.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "document_id", "source", "text", "metadata", "warnings"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "document_id": {"type": "string", "minLength": 1},
+    "source": {"type": "object", "additionalProperties": false, "required": ["type", "filename"], "properties": {"type": {"const": "image"}, "filename": {"type": "string", "minLength": 1}}},
+    "text": {"type": "string"},
+    "metadata": {"type": "object", "required": ["page_count", "image_width", "image_height", "image_format", "ocr_engine"], "properties": {"page_count": {"type": "integer", "minimum": 1}, "image_width": {"type": "integer", "minimum": 1, "description": "Width in pixels of the original uploaded image."}, "image_height": {"type": "integer", "minimum": 1, "description": "Height in pixels of the original uploaded image."}, "image_format": {"enum": ["PNG", "JPEG"]}, "ocr_engine": {"const": "tesseract"}, "preprocessing_operations": {"type": "array", "items": {"type": "string"}}, "processing_duration_ms": {"type": "number", "minimum": 0}}},
+    "warnings": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["code", "message"], "properties": {"code": {"type": "string"}, "message": {"type": "string"}}}}
+  }
+}
