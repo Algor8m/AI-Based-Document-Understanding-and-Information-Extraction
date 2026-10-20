@@ -5,9 +5,14 @@ import re
 DOCUMENT_KEYWORDS = {
     "service_agreement": [
         "service agreement",
+        "service contract",
+        "contract for services",
+        "contract of services",
         "terms of service",
         "scope of services",
+        "scope of work",
         "service provider",
+        "services between two parties",
     ],
     "invoice": [
         "invoice",
