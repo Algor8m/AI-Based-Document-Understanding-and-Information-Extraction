@@ -1,10 +1,9 @@
-
 import re
 from typing import Any
 
 
 def extract_facts(text: str) -> dict[str, Any]:
-    """Extract basic contact details and invoice fields from document text."""
+    """Extract contact details, dates, and invoice fields from document text."""
     if not isinstance(text, str):
         raise TypeError("Input text must be a string.")
 
@@ -24,23 +23,29 @@ def extract_facts(text: str) -> dict[str, Any]:
         text,
     )
 
-    # Invoice-specific fields.
+    # Invoice number: Invoice Number, Invoice No., Invoice #, etc.
     invoice_number_match = re.search(
-        r"(?im)^\s*(?:invoice\s*(?:number|no\.?|#))"
+        r"(?im)^\s*(?:invoice\s*(?:number|no\.?|#)|"
+        r"inv(?:oice)?\s*(?:no\.?|#))"
         r"\s*[:#-]?\s*([A-Z0-9][A-Z0-9/-]*)",
         text,
     )
 
+    # Invoice date: Invoice Date or Date of Invoice.
     invoice_date_match = re.search(
-        r"(?im)^\s*invoice\s*date\s*[:#-]?\s*"
+        r"(?im)^\s*(?:invoice\s*date|date\s+of\s+invoice)"
+        r"\s*[:#-]?\s*"
         r"(\d{4}-\d{2}-\d{2}|\d{1,2}[/-]\d{1,2}[/-]\d{2,4})",
         text,
     )
 
+    # Amount due: support common invoice total labels and currencies.
     amount_due_match = re.search(
         r"(?im)^\s*(?:total\s+amount\s+due|amount\s+due|"
-        r"balance\s+due)\s*[:\-]?\s*"
-        r"(?:INR|Rs\.?|₹|USD|\$)?\s*"
+        r"balance\s+due|total\s+due|grand\s+total|"
+        r"total\s+payable|amount\s+payable)"
+        r"\s*[:=-]?\s*"
+        r"(?:(?:INR|Rs\.?|₹|USD|US\$|\$)\s*)?"
         r"([\d,]+(?:\.\d{1,2})?)",
         text,
     )

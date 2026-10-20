@@ -56,6 +56,36 @@ class TestInvoiceExtraction(unittest.TestCase):
             "12500.00",
         )
 
+    def test_alternative_invoice_labels(self):
+        text = (
+            "Invoice No.: INV-101\n"
+            "Date of Invoice: 20/10/2026\n"
+            "Grand Total: ₹12,500.00"
+        )
+
+        facts = extract_facts(text)
+
+        self.assertEqual(facts["invoice_number"], "INV-101")
+        self.assertEqual(facts["invoice_date"], "20/10/2026")
+        self.assertEqual(facts["amount_due"], "12500.00")
+
+    def test_alternative_amount_labels(self):
+        test_cases = [
+            ("Total Due: INR 500.00", "500.00"),
+            ("Balance Due: Rs. 1,250.50", "1250.50"),
+            ("Total Payable: $75.00", "75.00"),
+            ("Amount Payable: 900", "900"),
+        ]
+
+        for text, expected_amount in test_cases:
+            with self.subTest(text=text):
+                facts = extract_facts(text)
+                self.assertEqual(
+                    facts["amount_due"],
+                    expected_amount,
+                )
+
+
 
 if __name__ == "__main__":
     unittest.main()
