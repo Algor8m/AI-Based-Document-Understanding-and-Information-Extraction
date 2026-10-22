@@ -59,3 +59,12 @@ flowchart TD
 
 ### 5. `contracts/`
 - `prepared_document.schema.json`: JSON Schema draft 2020-12 defining the contract boundary between image preparation and AI reasoning.
+
+## Known Limitations
+
+- Only single PNG/JPEG images are supported.
+- OCR quality depends on image quality and installed Tesseract language data.
+- Orientation uses EXIF metadata; visual or skew-based rotation detection is not implemented.
+- No OCR confidence score is generated.
+- Preprocessing is deliberately modest.
+- API multipart transport requires the `python-multipart` package.
