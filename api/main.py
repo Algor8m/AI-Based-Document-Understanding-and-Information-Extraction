@@ -1,7 +1,9 @@
 """FastAPI routes for the image preparation and document processing system."""
 
+import asyncio
 import logging
 import os
+from typing import Any
 from uuid import uuid4
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
@@ -124,6 +126,132 @@ async def prepare(
         ) from None
 
 
+async def call_ai_engine(document_id: str, text: str) -> dict[str, Any]:
+    """Call the AI Engine REST service with bounded retries for transient errors."""
+    ai_url = f"{AI_ENGINE_URL.rstrip('/')}/api/v1/analyze"
+    max_retries = 2
+    ai_resp = None
+
+    for attempt in range(max_retries):
+        try:
+            async with httpx.AsyncClient(timeout=AI_ENGINE_TIMEOUT_SECONDS) as client:
+                ai_resp = await client.post(
+                    ai_url,
+                    json={
+                        "document_id": document_id,
+                        "text": text,
+                    },
+                )
+            # If 503 Service Unavailable, retry once if attempts remain
+            if ai_resp.status_code == 503 and attempt < max_retries - 1:
+                await asyncio.sleep(0.2)
+                continue
+            break
+        except (httpx.ConnectTimeout, httpx.ReadTimeout, httpx.WriteTimeout, httpx.PoolTimeout):
+            if attempt < max_retries - 1:
+                await asyncio.sleep(0.2)
+                continue
+            raise HTTPException(
+                status_code=504,
+                detail={"error": {
+                    "code": "AI_SERVICE_TIMEOUT",
+                    "message": "AI analysis service timed out during processing.",
+                }},
+            ) from None
+        except (httpx.ConnectError, httpx.NetworkError):
+            if attempt < max_retries - 1:
+                await asyncio.sleep(0.2)
+                continue
+            raise HTTPException(
+                status_code=502,
+                detail={"error": {
+                    "code": "AI_SERVICE_UNAVAILABLE",
+                    "message": f"Could not connect to AI analysis service at {ai_url}.",
+                }},
+            ) from None
+        except Exception:
+            logger.exception("Unexpected error communicating with AI engine")
+            raise HTTPException(
+                status_code=502,
+                detail={"error": {
+                    "code": "AI_SERVICE_ERROR",
+                    "message": "Failed to communicate with AI analysis service.",
+                }},
+            ) from None
+
+    if ai_resp is None or ai_resp.status_code != 200:
+        status_code = ai_resp.status_code if ai_resp else 502
+        logger.error("AI service returned error status %d", status_code)
+        raise HTTPException(
+            status_code=502,
+            detail={"error": {
+                "code": "AI_SERVICE_ERROR",
+                "message": f"AI service returned error code {status_code}.",
+            }},
+        )
+
+    try:
+        ai_data = ai_resp.json()
+    except Exception:
+        raise HTTPException(
+            status_code=502,
+            detail={"error": {
+                "code": "AI_SERVICE_INVALID_RESPONSE",
+                "message": "AI service returned non-JSON response.",
+            }},
+        )
+
+    if not isinstance(ai_data, dict):
+        raise HTTPException(
+            status_code=502,
+            detail={"error": {
+                "code": "AI_SERVICE_INVALID_RESPONSE",
+                "message": "AI service returned invalid payload structure.",
+            }},
+        )
+
+    return ai_data
+
+
+def normalize_ai_data(ai_data: dict[str, Any], text_length: int) -> tuple[str, dict, dict, dict, list, dict]:
+    """Validate and normalize AI output fields, ensuring schema conformity and no invented facts."""
+    classification = ai_data.get("classification")
+    if not isinstance(classification, dict):
+        classification = {
+            "document_type": "unknown",
+            "classification_method": "none",
+            "confidence": "none",
+        }
+
+    raw_extracted = ai_data.get("extracted_facts")
+    if not isinstance(raw_extracted, dict):
+        raw_extracted = {}
+
+    extracted_facts = {
+        "emails": raw_extracted.get("emails") if isinstance(raw_extracted.get("emails"), list) else [],
+        "phone_numbers": raw_extracted.get("phone_numbers") if isinstance(raw_extracted.get("phone_numbers"), list) else [],
+        "dates": raw_extracted.get("dates") if isinstance(raw_extracted.get("dates"), list) else [],
+        "text_length": raw_extracted.get("text_length") if isinstance(raw_extracted.get("text_length"), int) else text_length,
+        "invoice_number": raw_extracted.get("invoice_number"),
+        "invoice_date": raw_extracted.get("invoice_date"),
+        "amount_due": raw_extracted.get("amount_due"),
+        "contract_parties": raw_extracted.get("contract_parties") if isinstance(raw_extracted.get("contract_parties"), list) else [],
+        "effective_date": raw_extracted.get("effective_date"),
+    }
+
+    inferred_facts = ai_data.get("inferred_facts") if isinstance(ai_data.get("inferred_facts"), dict) else {}
+    reasoning = ai_data.get("reasoning") if isinstance(ai_data.get("reasoning"), list) else []
+    field_evidence = ai_data.get("field_evidence") if isinstance(ai_data.get("field_evidence"), dict) else raw_extracted.get("field_evidence", {})
+
+    doc_type = (
+        classification.get("document_type")
+        or inferred_facts.get("document_type")
+        or "unknown"
+    )
+
+    return doc_type, classification, extracted_facts, inferred_facts, reasoning, field_evidence
+
+
 @app.post("/api/v1/documents/process")
 async def process_document(
     file: UploadFile = File(...),
@@ -198,7 +326,10 @@ async def process_document(
                     "invoice_number": None,
                     "invoice_date": None,
                     "amount_due": None,
+                    "contract_parties": [],
+                    "effective_date": None,
                 },
+                "field_evidence": {},
                 "inferred_facts": {},
                 "reasoning": [],
             },
@@ -215,77 +346,12 @@ async def process_document(
             "errors": [],
         }
 
-    # Step 6: Call AI engine /api/v1/analyze via REST
-    ai_url = f"{AI_ENGINE_URL.rstrip('/')}/api/v1/analyze"
-    try:
-        async with httpx.AsyncClient(timeout=AI_ENGINE_TIMEOUT_SECONDS) as client:
-            ai_resp = await client.post(
-                ai_url,
-                json={
-                    "document_id": prepared.document_id,
-                    "text": prepared.text,
-                },
-            )
-    except httpx.ConnectTimeout:
-        raise HTTPException(
-            status_code=504,
-            detail={"error": {
-                "code": "AI_SERVICE_TIMEOUT",
-                "message": f"Connection timed out reaching AI engine at {ai_url}.",
-            }},
-        ) from None
-    except (httpx.ReadTimeout, httpx.WriteTimeout, httpx.PoolTimeout):
-        raise HTTPException(
-            status_code=504,
-            detail={"error": {
-                "code": "AI_SERVICE_TIMEOUT",
-                "message": "AI analysis service timed out during processing.",
-            }},
-        ) from None
-    except (httpx.ConnectError, httpx.NetworkError):
-        raise HTTPException(
-            status_code=502,
-            detail={"error": {
-                "code": "AI_SERVICE_UNAVAILABLE",
-                "message": f"Could not connect to AI analysis service at {ai_url}.",
-            }},
-        ) from None
-    except Exception:
-        logger.exception("Unexpected error communicating with AI engine")
-        raise HTTPException(
-            status_code=502,
-            detail={"error": {
-                "code": "AI_SERVICE_ERROR",
-                "message": "Failed to communicate with AI analysis service.",
-            }},
-        ) from None
+    # Step 6: Call AI engine /api/v1/analyze via REST with bounded retries
+    ai_data = await call_ai_engine(prepared.document_id, prepared.text)
 
-    if ai_resp.status_code != 200:
-        logger.error("AI service returned error status %d: %s", ai_resp.status_code, ai_resp.text)
-        raise HTTPException(
-            status_code=502,
-            detail={"error": {
-                "code": "AI_SERVICE_ERROR",
-                "message": f"AI service returned error code {ai_resp.status_code}.",
-            }},
-        )
-
-    try:
-        ai_data = ai_resp.json()
-    except Exception:
-        raise HTTPException(
-            status_code=502,
-            detail={"error": {
-                "code": "AI_SERVICE_INVALID_RESPONSE",
-                "message": "AI service returned non-JSON response.",
-            }},
-        )
-
-    # Step 7: Build normalized result
-    doc_type = (
-        ai_data.get("classification", {}).get("document_type")
-        or ai_data.get("inferred_facts", {}).get("document_type")
-        or "unknown"
+    # Step 7: Build normalized, schema-validated result
+    doc_type, classification, extracted_facts, inferred_facts, reasoning, field_evidence = normalize_ai_data(
+        ai_data, len(prepared.text)
     )
 
     return {
@@ -295,10 +361,11 @@ async def process_document(
         "status": "success",
         "data": {
             "document_type": doc_type,
-            "classification": ai_data.get("classification", {}),
-            "extracted_facts": ai_data.get("extracted_facts", {}),
-            "inferred_facts": ai_data.get("inferred_facts", {}),
-            "reasoning": ai_data.get("reasoning", []),
+            "classification": classification,
+            "extracted_facts": extracted_facts,
+            "field_evidence": field_evidence,
+            "inferred_facts": inferred_facts,
+            "reasoning": reasoning,
         },
         "prepared_document": prepared.to_dict(),
         "intermediate_images": stage_metadata,

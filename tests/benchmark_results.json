@@ -1,0 +1,299 @@
+{
+  "timestamp": "2026-10-22T04:42:38Z",
+  "total_documents_tested": 7,
+  "total_valid_documents": 6,
+  "total_evaluated_fields": 23,
+  "correctly_extracted_fields": 23,
+  "field_level_accuracy_pct": 100.0,
+  "end_to_end_success_rate_pct": 100.0,
+  "results": [
+    {
+      "test_id": "doc_01_clear_invoice",
+      "filename": "doc_01_clear_invoice.png",
+      "description": "Clear high-resolution business invoice",
+      "status_code": 200,
+      "total_time_ms": 1912.16,
+      "success": true,
+      "ocr_status": "success",
+      "ai_status": "success",
+      "ocr_confidence": 95.04,
+      "preprocessing_operations": [
+        "exif_orientation",
+        "grayscale",
+        "autocontrast",
+        "contrast_adjustment"
+      ],
+      "ocr_duration_ms": 1536.58,
+      "cer": 0.0,
+      "wer": 0.0,
+      "field_matches": {
+        "invoice_number": {
+          "expected": "INV-2026-101",
+          "actual": "INV-2026-101",
+          "matched": true
+        },
+        "invoice_date": {
+          "expected": "2026-10-22",
+          "actual": "2026-10-22",
+          "matched": true
+        },
+        "amount_due": {
+          "expected": "4250.00",
+          "actual": "4250.00",
+          "matched": true
+        },
+        "emails": {
+          "expected": [
+            "accounts@acme-supplies.com"
+          ],
+          "actual": [
+            "accounts@acme-supplies.com"
+          ],
+          "matched": true
+        }
+      },
+      "document_type_matched": true
+    },
+    {
+      "test_id": "doc_02_noisy_lowres_invoice",
+      "filename": "doc_02_noisy_lowres_invoice.png",
+      "description": "Low-resolution scanned invoice needing upscale & contrast",
+      "status_code": 200,
+      "total_time_ms": 1526.04,
+      "success": true,
+      "ocr_status": "success",
+      "ai_status": "success",
+      "ocr_confidence": 90.67,
+      "preprocessing_operations": [
+        "exif_orientation",
+        "grayscale",
+        "upscale",
+        "autocontrast",
+        "contrast_adjustment"
+      ],
+      "ocr_duration_ms": 1175.16,
+      "cer": 0.0,
+      "wer": 0.0,
+      "field_matches": {
+        "invoice_number": {
+          "expected": "INV-2026-088",
+          "actual": "INV-2026-088",
+          "matched": true
+        },
+        "invoice_date": {
+          "expected": "2026-08-15",
+          "actual": "2026-08-15",
+          "matched": true
+        },
+        "amount_due": {
+          "expected": "750.00",
+          "actual": "750.00",
+          "matched": true
+        },
+        "emails": {
+          "expected": [
+            "support@lowres-sample.com"
+          ],
+          "actual": [
+            "support@lowres-sample.com"
+          ],
+          "matched": true
+        }
+      },
+      "document_type_matched": true
+    },
+    {
+      "test_id": "doc_03_skewed_invoice",
+      "filename": "doc_03_skewed_invoice.png",
+      "description": "Invoice skewed by -6 degrees needing deskewing",
+      "status_code": 200,
+      "total_time_ms": 2067.0,
+      "success": true,
+      "ocr_status": "success",
+      "ai_status": "success",
+      "ocr_confidence": 91.78,
+      "preprocessing_operations": [
+        "exif_orientation",
+        "deskew",
+        "grayscale",
+        "autocontrast",
+        "contrast_adjustment"
+      ],
+      "ocr_duration_ms": 1641.48,
+      "cer": 0.0221,
+      "wer": 0.0909,
+      "field_matches": {
+        "invoice_number": {
+          "expected": "INV-2026-202",
+          "actual": "INV-2026-202",
+          "matched": true
+        },
+        "invoice_date": {
+          "expected": "2026-11-10",
+          "actual": "2026-11-10",
+          "matched": true
+        },
+        "amount_due": {
+          "expected": "1800.00",
+          "actual": "1800.00",
+          "matched": true
+        },
+        "emails": {
+          "expected": [
+            "billing@skew-corp.com"
+          ],
+          "actual": [
+            "billing@skew-corp.com"
+          ],
+          "matched": true
+        }
+      },
+      "document_type_matched": true
+    },
+    {
+      "test_id": "doc_04_rotated_invoice",
+      "filename": "doc_04_rotated_invoice.png",
+      "description": "Invoice rotated 90 degrees needing visual orientation correction",
+      "status_code": 200,
+      "total_time_ms": 2314.05,
+      "success": true,
+      "ocr_status": "success",
+      "ai_status": "success",
+      "ocr_confidence": 95.0,
+      "preprocessing_operations": [
+        "exif_orientation",
+        "orientation_correction",
+        "grayscale",
+        "autocontrast",
+        "contrast_adjustment"
+      ],
+      "ocr_duration_ms": 1884.09,
+      "cer": 0.0,
+      "wer": 0.0,
+      "field_matches": {
+        "invoice_number": {
+          "expected": "INV-2026-303",
+          "actual": "INV-2026-303",
+          "matched": true
+        },
+        "invoice_date": {
+          "expected": "2026-12-05",
+          "actual": "2026-12-05",
+          "matched": true
+        },
+        "amount_due": {
+          "expected": "9200.00",
+          "actual": "9200.00",
+          "matched": true
+        }
+      },
+      "document_type_matched": true
+    },
+    {
+      "test_id": "doc_05_multiparagraph_agreement",
+      "filename": "doc_05_multiparagraph_agreement.png",
+      "description": "Multi-paragraph service agreement with sections",
+      "status_code": 200,
+      "total_time_ms": 2694.36,
+      "success": true,
+      "ocr_status": "success",
+      "ai_status": "success",
+      "ocr_confidence": 95.76,
+      "preprocessing_operations": [
+        "exif_orientation",
+        "grayscale",
+        "autocontrast",
+        "contrast_adjustment"
+      ],
+      "ocr_duration_ms": 2168.31,
+      "cer": 0.0,
+      "wer": 0.0,
+      "field_matches": {
+        "contract_parties": {
+          "expected": [
+            "Apex Tech Consulting",
+            "Beta Logistics Corp"
+          ],
+          "actual": [
+            "Apex Tech Consulting",
+            "Beta Logistics Corp"
+          ],
+          "matched": true
+        },
+        "effective_date": {
+          "expected": "2026-09-01",
+          "actual": "2026-09-01",
+          "matched": true
+        },
+        "amount_due": {
+          "expected": "15000.00",
+          "actual": "15000.00",
+          "matched": true
+        },
+        "emails": {
+          "expected": [
+            "legal@apextech.com"
+          ],
+          "actual": [
+            "legal@apextech.com"
+          ],
+          "matched": true
+        }
+      },
+      "document_type_matched": true
+    },
+    {
+      "test_id": "doc_06_blank",
+      "filename": "doc_06_blank.png",
+      "description": "Blank white image with no readable text",
+      "status_code": 200,
+      "total_time_ms": 1944.46,
+      "success": true,
+      "ocr_status": "success",
+      "ai_status": "skipped",
+      "ocr_confidence": 0.0,
+      "preprocessing_operations": [
+        "exif_orientation",
+        "grayscale",
+        "upscale",
+        "autocontrast",
+        "contrast_adjustment"
+      ],
+      "ocr_duration_ms": 1909.93,
+      "cer": 0.0,
+      "wer": 0.0,
+      "field_matches": {
+        "invoice_number": {
+          "expected": null,
+          "actual": null,
+          "matched": true
+        },
+        "invoice_date": {
+          "expected": null,
+          "actual": null,
+          "matched": true
+        },
+        "amount_due": {
+          "expected": null,
+          "actual": null,
+          "matched": true
+        },
+        "emails": {
+          "expected": [],
+          "actual": [],
+          "matched": true
+        }
+      },
+      "document_type_matched": true
+    },
+    {
+      "test_id": "doc_07_corrupt",
+      "filename": "doc_07_corrupt.png",
+      "description": "Corrupt file payload with PNG extension",
+      "status_code": 400,
+      "total_time_ms": 6.9,
+      "expected_rejection": true,
+      "rejection_success": true
+    }
+  ]
+}

@@ -202,16 +202,31 @@ curl -X POST "http://127.0.0.1:8000/api/v1/documents/process" \
 
 ---
 
+## Documentation & Reports
+
+Comprehensive reliability, acceptance, and test execution reports:
+- [AI & OCR Reliability Report](docs/AI_OCR_RELIABILITY_REPORT.md): Baseline defects, architectural improvements, reliability hardening, and limitations.
+- [End-to-End Acceptance Tests](docs/END_TO_END_ACCEPTANCE_TESTS.md): Full specification and execution log for scenarios `E2E-01` through `E2E-14`.
+- [Test Results & Metrics](docs/TEST_RESULTS.md): Detailed results for unit, integration, and E2E suites, with quantitative CER, WER, and field accuracy measurements.
+
+---
+
 ## Running the Test Suite
 
 Execute all tests from the repository root:
 
-```bash
-# Run full test suite (51 tests)
+```powershell
+# Run full test suite (76 tests)
 pytest
 
 # Run with verbose output
 pytest -v
+
+# Run the 14 End-to-End Acceptance Scenarios (E2E-01 to E2E-14)
+pytest tests/test_acceptance_e2e_scenarios.py -v
+
+# Run performance benchmarking (computes CER, WER, and Field-Level Accuracy)
+python tests/measure_performance.py
 
 # Run specific test modules
 pytest tests/test_integration_process.py
@@ -224,7 +239,7 @@ pytest modules/ai-engine/tests/
 
 ## Known Limitations
 
-1. **OCR Single-Page Scope:** Currently processes single-page PNG and JPEG documents. Multi-page PDF or TIFF ingestion is not yet supported.
-2. **Orientation Detection:** Orientation relies on EXIF metadata; arbitrary visual skew or unoriented scans require manual upright orientation.
-3. **Template Coverage:** Invoice field extraction relies on label-anchored patterns (`Invoice Number:`, `Amount Due:`, etc.). Highly non-standard layouts without standard labels may fail to extract specific fields and return `null`.
+1. **OCR Single-Page Scope:** Currently processes single-page PNG and JPEG documents. Multi-page PDF or TIFF ingestion is not yet supported in Layer 1.
+2. **Template Coverage:** Entity extraction relies on explainable anchor patterns (`Invoice Number:`, `Amount Due:`, `Between ... and ...`). Highly non-standard layouts without standard labels may fail to extract specific fields and return `null` without fabricating data.
+3. **Handwritten Documents:** Current OCR is calibrated for printed document characters using standard Tesseract `eng.traineddata`. Degraded handwriting may yield lower confidence.
 4. **Demonstration Layers:** Layers 2 and 3 are temporary demonstration modules and are not required for Layer 1 core operations.

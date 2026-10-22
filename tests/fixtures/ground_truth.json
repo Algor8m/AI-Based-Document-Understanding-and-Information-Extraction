@@ -1,0 +1,91 @@
+{
+  "doc_01_clear_invoice": {
+    "filename": "doc_01_clear_invoice.png",
+    "description": "Clear high-resolution business invoice",
+    "reference_text": "ACME SUPPLIES INC\nINVOICE\nInvoice Number: INV-2026-101\nInvoice Date: 2026-10-22\nAmount Due: $4,250.00\nContact: accounts@acme-supplies.com\nPhone: +1 (555) 234-5678\nBill To: Global Distribution LLC",
+    "expected_document_type": "invoice",
+    "expected_fields": {
+      "invoice_number": "INV-2026-101",
+      "invoice_date": "2026-10-22",
+      "amount_due": "4250.00",
+      "emails": [
+        "accounts@acme-supplies.com"
+      ]
+    }
+  },
+  "doc_02_noisy_lowres_invoice": {
+    "filename": "doc_02_noisy_lowres_invoice.png",
+    "description": "Low-resolution scanned invoice needing upscale & contrast",
+    "reference_text": "INVOICE\nInvoice Number: INV-2026-088\nInvoice Date: 2026-08-15\nAmount Due: $750.00\nContact: support@lowres-sample.com",
+    "expected_document_type": "invoice",
+    "expected_fields": {
+      "invoice_number": "INV-2026-088",
+      "invoice_date": "2026-08-15",
+      "amount_due": "750.00",
+      "emails": [
+        "support@lowres-sample.com"
+      ]
+    }
+  },
+  "doc_03_skewed_invoice": {
+    "filename": "doc_03_skewed_invoice.png",
+    "description": "Invoice skewed by -6 degrees needing deskewing",
+    "reference_text": "SKEW LOGISTICS CORP\nINVOICE\nInvoice Number: INV-2026-202\nInvoice Date: 2026-11-10\nAmount Due: $1,800.00\nContact: billing@skew-corp.com\nTotal Payable: $1,800.00\nPayment terms: Net 30",
+    "expected_document_type": "invoice",
+    "expected_fields": {
+      "invoice_number": "INV-2026-202",
+      "invoice_date": "2026-11-10",
+      "amount_due": "1800.00",
+      "emails": [
+        "billing@skew-corp.com"
+      ]
+    }
+  },
+  "doc_04_rotated_invoice": {
+    "filename": "doc_04_rotated_invoice.png",
+    "description": "Invoice rotated 90 degrees needing visual orientation correction",
+    "reference_text": "ENTERPRISE BILLING STATEMENT\nINVOICE\nInvoice Number: INV-2026-303\nInvoice Date: 2026-12-05\nAmount Due: $9,200.00\nBill To: Orion Innovations\nContact: finance@enterprise-billing.com\nScope of services completed per agreement terms.\nPayment instructions: Electronic wire transfer within 15 days.\nThank you for choosing Enterprise Billing Solutions.",
+    "expected_document_type": "invoice",
+    "expected_fields": {
+      "invoice_number": "INV-2026-303",
+      "invoice_date": "2026-12-05",
+      "amount_due": "9200.00"
+    }
+  },
+  "doc_05_multiparagraph_agreement": {
+    "filename": "doc_05_multiparagraph_agreement.png",
+    "description": "Multi-paragraph service agreement with sections",
+    "reference_text": "PROFESSIONAL SERVICES AGREEMENT\n\nThis agreement is made between Apex Tech Consulting and Beta Logistics Corp.\nEffective Date: 2026-09-01\nContact: legal@apextech.com\n\n1. Scope of Services\nThe service provider shall deliver cloud architecture, automated data pipelines,\nand ongoing system support. Both parties agree to adherence with project milestones.\n\n2. Terms of Service and Consideration\nThe client agrees to the terms of service set forth herein.\nTotal Payable: $15,000.00\nInvoices shall be rendered upon completion of each agreed milestone.",
+    "expected_document_type": "service_agreement",
+    "expected_fields": {
+      "contract_parties": [
+        "Apex Tech Consulting",
+        "Beta Logistics Corp"
+      ],
+      "effective_date": "2026-09-01",
+      "amount_due": "15000.00",
+      "emails": [
+        "legal@apextech.com"
+      ]
+    }
+  },
+  "doc_06_blank": {
+    "filename": "doc_06_blank.png",
+    "description": "Blank white image with no readable text",
+    "reference_text": "",
+    "expected_document_type": "unknown",
+    "expected_fields": {
+      "invoice_number": null,
+      "invoice_date": null,
+      "amount_due": null,
+      "emails": []
+    }
+  },
+  "doc_07_corrupt": {
+    "filename": "doc_07_corrupt.png",
+    "description": "Corrupt file payload with PNG extension",
+    "reference_text": "",
+    "expected_document_type": null,
+    "expected_fields": {}
+  }
+}
