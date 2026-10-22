@@ -1,5 +1,10 @@
-
+from pathlib import Path
+import sys
 import unittest
+
+AI_ENGINE_DIR = Path(__file__).resolve().parent.parent
+if str(AI_ENGINE_DIR) not in sys.path:
+    sys.path.insert(0, str(AI_ENGINE_DIR))
 
 from src.extractor import extract_facts
 from src.knowledge_base import KnowledgeBase
@@ -77,4 +82,3 @@ class TestAIEngine(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-                    

@@ -1,3 +1,10 @@
+from pathlib import Path
+import sys
+
+# Ensure modules/ai-engine is on sys.path so 'src' is always resolvable
+_MODULE_DIR = Path(__file__).resolve().parent
+if str(_MODULE_DIR) not in sys.path:
+    sys.path.insert(0, str(_MODULE_DIR))
 
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field

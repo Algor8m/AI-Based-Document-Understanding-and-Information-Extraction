@@ -1,8 +1,20 @@
-
+import importlib.util
+from pathlib import Path
+import sys
 import unittest
 
 from fastapi.testclient import TestClient
-from api import app
+
+# Ensure modules/ai-engine is resolvable and import its api.py cleanly
+AI_ENGINE_DIR = Path(__file__).resolve().parent.parent
+if str(AI_ENGINE_DIR) not in sys.path:
+    sys.path.insert(0, str(AI_ENGINE_DIR))
+
+spec = importlib.util.spec_from_file_location("ai_engine_api", AI_ENGINE_DIR / "api.py")
+ai_engine_api = importlib.util.module_from_spec(spec)
+sys.modules["ai_engine_api"] = ai_engine_api
+spec.loader.exec_module(ai_engine_api)
+app = ai_engine_api.app
 
 
 class TestDocumentAnalysisAPI(unittest.TestCase):
@@ -55,10 +67,32 @@ class TestDocumentAnalysisAPI(unittest.TestCase):
 
         self.assertEqual(response.status_code, 422)
 
+    def test_whitespace_text_is_rejected(self):
+        response = self.client.post(
+            "/api/v1/analyze",
+            json={
+                "document_id": "test-003",
+                "text": "   \n\t   ",
+            },
+        )
+
+        self.assertEqual(response.status_code, 422)
+
     def test_missing_document_id_is_rejected(self):
         response = self.client.post(
             "/api/v1/analyze",
             json={"text": "Sample document"},
+        )
+
+        self.assertEqual(response.status_code, 422)
+
+    def test_whitespace_document_id_is_rejected(self):
+        response = self.client.post(
+            "/api/v1/analyze",
+            json={
+                "document_id": "   ",
+                "text": "Sample document",
+            },
         )
 
         self.assertEqual(response.status_code, 422)

@@ -1,5 +1,10 @@
-
+from pathlib import Path
+import sys
 import unittest
+
+AI_ENGINE_DIR = Path(__file__).resolve().parent.parent
+if str(AI_ENGINE_DIR) not in sys.path:
+    sys.path.insert(0, str(AI_ENGINE_DIR))
 
 from src.extractor import extract_facts
 from src.analyzer import analyze_document
@@ -84,7 +89,6 @@ class TestInvoiceExtraction(unittest.TestCase):
                     facts["amount_due"],
                     expected_amount,
                 )
-
 
 
 if __name__ == "__main__":

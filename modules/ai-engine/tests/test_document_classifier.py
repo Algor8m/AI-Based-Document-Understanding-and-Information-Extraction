@@ -1,5 +1,10 @@
-
+from pathlib import Path
+import sys
 import unittest
+
+AI_ENGINE_DIR = Path(__file__).resolve().parent.parent
+if str(AI_ENGINE_DIR) not in sys.path:
+    sys.path.insert(0, str(AI_ENGINE_DIR))
 
 from src.document_classifier import classify_document
 from src.analyzer import analyze_document
@@ -87,7 +92,6 @@ class TestDocumentClassifier(unittest.TestCase):
             "general_document",
         )
         self.assertEqual(result["confidence"], "low")
-
 
 
 if __name__ == "__main__":

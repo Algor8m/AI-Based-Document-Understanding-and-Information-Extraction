@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>IVP+AI | Document Intelligence System</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+  <!-- Top bar with university branding and live system health indicator -->
+  <header class="site-header">
+    <div class="header-top">
+      <div class="container">
+        <span class="university-tag">NMIMS Academic Architecture · IVP+AI Layer 1 MVP</span>
+        <div class="health-indicator" id="health-indicator" title="Live status of backend gateway and AI services">
+          <span class="health-dot" id="health-dot"></span>
+          <span id="health-text">Checking system...</span>
+        </div>
+      </div>
+    </div>
+    <div class="header-main">
+      <div class="container">
+        <div class="brand-wrap">
+          <div class="brand-badge">IVP+AI</div>
+          <div class="brand-titles">
+            <h1>Document Understanding & Information Extraction</h1>
+            <div class="subtitle">Document Intelligence System</div>
+          </div>
+        </div>
+        <nav class="site-nav" aria-label="Main Navigation">
+          <ul>
+            <li><a href="#home" class="active" id="nav-home">Home</a></li>
+            <li><a href="#analysis" id="nav-analysis">Document Analysis</a></li>
+            <li><a href="#about" id="nav-about">About Project</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero-section" id="home">
+    <div class="container">
+      <span class="hero-eyebrow">Artificial Intelligence & Image Processing</span>
+      <h2>Transform Documents into Structured Knowledge</h2>
+      <p>Upload a document, extract its text through image processing and OCR, and analyse its contents using the IVP+AI engine.</p>
+      <a href="#analysis" class="btn btn-primary" id="btn-hero-analyse">Analyse a Document</a>
+    </div>
+  </section>
+
+  <!-- Main Analysis Workplace -->
+  <main class="container" style="padding: 32px 0;">
+
+    <!-- Document Upload Card -->
+    <section class="card" id="analysis">
+      <div class="card-header">
+        <h3>Document Submission</h3>
+        <span class="badge badge-grey">PNG / JPEG &middot; Max 10 MB</span>
+      </div>
+
+      <!-- Drag & Drop Zone -->
+      <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-label="Upload document image">
+        <svg class="drop-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="17 8 12 3 7 8"></polyline>
+          <line x1="12" y1="3" x2="12" y2="15"></line>
+        </svg>
+        <div class="drop-title">Choose an image or drag & drop it here</div>
+        <div class="drop-desc">Supports single-page PNG or JPEG invoices, contracts, and documents</div>
+        <input id="file-input" type="file" accept="image/png,image/jpeg,.png,.jpg,.jpeg">
+      </div>
+
+      <!-- Selected File Preview -->
+      <div id="file-preview-card" class="file-preview-card" style="display: none;">
+        <img id="preview-thumb" class="preview-thumb" src="" alt="Thumbnail Preview">
+        <div class="preview-meta">
+          <div id="preview-filename" class="preview-filename">document.png</div>
+          <div id="preview-size" class="preview-size">0.00 MB</div>
+        </div>
+        <div class="preview-actions">
+          <button type="button" class="btn btn-secondary btn-sm" id="btn-replace">Replace</button>
+          <button type="button" class="btn btn-danger btn-sm" id="btn-remove">Remove</button>
+        </div>
+      </div>
+
+      <!-- Action Button & Errors -->
+      <div class="upload-actions">
+        <button type="button" id="btn-process" class="btn btn-primary" disabled>Process Document</button>
+        <span id="upload-hint" style="font-size: 13px; color: var(--grey);">Select a file to begin document understanding.</span>
+      </div>
+
+      <!-- Error Banner -->
+      <div id="error-box" class="alert alert-error" style="display: none;" role="alert">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        <div id="error-message">An error occurred during processing.</div>
+      </div>
+    </section>
+
+    <!-- Processing Stage Progress Indicator -->
+    <section id="progress-card" class="card" style="display: none;">
+      <div class="card-header">
+        <h3>Pipeline Workflow</h3>
+        <span id="pipeline-status-badge" class="badge badge-grey">Idle</span>
+      </div>
+      <div class="progress-tracker">
+        <div class="step-item" id="step-1">
+          <div class="step-circle">1</div>
+          <div class="step-label">Upload</div>
+        </div>
+        <div class="step-item" id="step-2">
+          <div class="step-circle">2</div>
+          <div class="step-label">Preprocessing</div>
+        </div>
+        <div class="step-item" id="step-3">
+          <div class="step-circle">3</div>
+          <div class="step-label">OCR</div>
+        </div>
+        <div class="step-item" id="step-4">
+          <div class="step-circle">4</div>
+          <div class="step-label">AI Analysis</div>
+        </div>
+        <div class="step-item" id="step-5">
+          <div class="step-circle">5</div>
+          <div class="step-label">Results</div>
+        </div>
+      </div>
+      <p id="pipeline-message" style="font-size: 13px; color: var(--grey); text-align: center;">Preparing pipeline...</p>
+    </section>
+
+    <!-- Comprehensive Results Section -->
+    <div id="results-container" style="display: none;">
+
+      <!-- Reset & New Document Bar -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 style="font-size: 22px;">Processing Results</h2>
+        <button type="button" class="btn btn-secondary btn-sm" id="btn-reset">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;">
+            <polyline points="1 4 1 10 7 10"></polyline>
+            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+          </svg>
+          Process Another Document
+        </button>
+      </div>
+
+      <!-- Warnings banner if any -->
+      <div id="warnings-banner" class="alert alert-warning" style="display: none;"></div>
+
+      <!-- Section 1: Overview & AI Classification Cards -->
+      <div class="results-grid">
+        <article class="card">
+          <div class="card-header">
+            <h3>Document Overview</h3>
+            <span id="badge-processing-status" class="badge badge-green">Success</span>
+          </div>
+          <dl class="kv-list" id="overview-list"></dl>
+        </article>
+
+        <article class="card">
+          <div class="card-header">
+            <h3>AI Classification</h3>
+            <span id="badge-classification-confidence" class="badge badge-grey">Confidence</span>
+          </div>
+          <dl class="kv-list" id="classification-list"></dl>
+        </article>
+      </div>
+
+      <!-- Section 2: Extracted Information & Reasoning Rules -->
+      <div class="results-grid">
+        <article class="card">
+          <div class="card-header">
+            <h3>Extracted Facts</h3>
+            <span class="badge badge-grey">Fact Extractor</span>
+          </div>
+          <dl class="kv-list" id="facts-list"></dl>
+        </article>
+
+        <article class="card">
+          <div class="card-header">
+            <h3>Inference & Reasoning</h3>
+            <span class="badge badge-grey">Forward Chaining</span>
+          </div>
+          <dl class="kv-list" id="reasoning-list"></dl>
+        </article>
+      </div>
+
+      <!-- Section 3: Extracted Text Section -->
+      <section class="card">
+        <div class="card-header">
+          <div>
+            <h3>Extracted Text</h3>
+            <div class="counts-bar">
+              <span id="word-count">0 words</span>
+              <span>&bull;</span>
+              <span id="char-count">0 characters</span>
+            </div>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button type="button" class="btn btn-secondary btn-sm" id="btn-copy-text">Copy Text</button>
+            <button type="button" class="btn btn-secondary btn-sm" id="btn-download-text">Download TXT</button>
+          </div>
+        </div>
+        <pre class="text-viewer" id="ocr-text-view"></pre>
+      </section>
+
+      <!-- Section 4: Image Processing & Real Intermediate Stages Details -->
+      <section class="card">
+        <div class="card-header">
+          <div>
+            <h3>Image Processing & Intermediate Stages</h3>
+            <p style="font-size: 13px; color: var(--grey); margin-top: 2px;">
+              Actual images recorded across each pipeline operation. Click any image to view in high resolution.
+            </p>
+          </div>
+          <span id="stages-count-badge" class="badge badge-red">0 Stages</span>
+        </div>
+
+        <!-- Original vs Processed Comparison -->
+        <div class="comparison-grid">
+          <div class="comparison-box">
+            <h4>Uploaded Document</h4>
+            <img id="img-compare-orig" class="comparison-img" src="" alt="Original Document" title="Click to expand">
+          </div>
+          <div class="comparison-box">
+            <h4>Final Preprocessed (OCR Input)</h4>
+            <img id="img-compare-proc" class="comparison-img" src="" alt="Preprocessed Document" title="Click to expand">
+          </div>
+        </div>
+
+        <!-- Full Gallery of Real Intermediate Stages -->
+        <h4 style="font-size: 15px; margin: 20px 0 10px; color: var(--black);">Operation Stage Gallery</h4>
+        <div class="gallery-grid" id="stages-gallery"></div>
+      </section>
+
+      <!-- Section 5: Structured JSON Output -->
+      <section class="card">
+        <div class="card-header">
+          <div>
+            <h3>Structured Result JSON</h3>
+            <p style="font-size: 13px; color: var(--grey); margin-top: 2px;">Contract-compliant normalized Layer 1 output payload.</p>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button type="button" class="btn btn-secondary btn-sm" id="btn-copy-json">Copy JSON</button>
+            <button type="button" class="btn btn-secondary btn-sm" id="btn-download-json">Download JSON</button>
+          </div>
+        </div>
+        <pre class="json-viewer" id="json-view"></pre>
+      </section>
+
+    </div>
+
+    <!-- About Section -->
+    <section class="card" id="about" style="margin-top: 36px;">
+      <div class="card-header">
+        <h3>About the Project</h3>
+        <span class="badge badge-red">NMIMS IVP+AI</span>
+      </div>
+      <p style="margin-bottom: 12px; font-size: 14px;">
+        <strong>IVP+AI: AI-Based Document Understanding and Information Extraction System</strong> is a modular, production-ready document processing platform designed to ingest raw scanned documents, apply conservative image enhancement, run optical character recognition (OCR) with Tesseract, and infer semantic meaning using forward-chaining rule engines.
+      </p>
+      <div class="results-grid" style="margin-top: 16px;">
+        <div>
+          <h4 style="font-size: 14px; margin-bottom: 8px;">Image Processing Pipeline</h4>
+          <ul style="font-size: 13px; color: #444; padding-left: 20px; line-height: 1.8;">
+            <li>File integrity validation and MIME check</li>
+            <li>EXIF transpose and orientation correction</li>
+            <li>Single-channel grayscale conversion</li>
+            <li>Bicubic upscaling for low-resolution text (&lt; 1000px)</li>
+            <li>Histogram autocontrast and 1.15x boundary enhancement</li>
+            <li>Direct Tesseract adapter with PSM 3 segmentation</li>
+          </ul>
+        </div>
+        <div>
+          <h4 style="font-size: 14px; margin-bottom: 8px;">AI Understanding Engine</h4>
+          <ul style="font-size: 13px; color: #444; padding-left: 20px; line-height: 1.8;">
+            <li>Explainable keyword-based document classifier</li>
+            <li>Regex entity extractors for emails, dates, and amounts</li>
+            <li>Structured invoice field recognition</li>
+            <li>In-memory knowledge base isolating inferred facts</li>
+            <li>Forward-chaining inference engine (fixed-point loop)</li>
+            <li>Decoupled REST API communication over HTTP</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Image Modal Viewer for Click-to-Expand -->
+  <div id="image-modal" class="modal" role="dialog" aria-modal="true">
+    <span class="modal-close" id="modal-close">&times;</span>
+    <img class="modal-content" id="modal-img" src="" alt="Enlarged Stage View">
+    <div class="modal-caption" id="modal-caption"></div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <p>IVP+AI: AI-Based Document Understanding and Information Extraction System</p>
+      <p style="font-size: 12px; margin-top: 4px; color: #999;">
+        NMIMS Research & Implementation Architecture &middot; Layer 1 Production MVP &middot; Tesseract OCR + FastAPI AI Engine
+      </p>
+    </div>
+  </footer>
+
+  <script src="/static/script.js" defer></script>
+</body>
+</html>

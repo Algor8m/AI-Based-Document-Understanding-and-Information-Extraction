@@ -1,4 +1,3 @@
-
 from typing import Any
 
 from src.extractor import extract_facts
@@ -14,6 +13,9 @@ def analyze_document(
     text: str,
 ) -> dict[str, Any]:
     """Extract, classify, and reason about document text."""
+
+    if not isinstance(document_id, str) or not document_id.strip():
+        raise ValueError("Document ID must not be empty.")
 
     if not isinstance(text, str) or not text.strip():
         raise ValueError("Document text must not be empty.")
